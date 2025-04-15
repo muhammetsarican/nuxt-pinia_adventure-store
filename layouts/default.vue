@@ -17,6 +17,10 @@
 </template>
 
 <script setup>
+import { useCartStore } from "~/store/cartStore";
+
+const cartStore = useCartStore();
+cartStore.getCart();
 </script>
 
 <style lang="scss" scoped>
