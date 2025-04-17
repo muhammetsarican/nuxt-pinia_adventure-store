@@ -8,6 +8,9 @@ export const useCartStore = defineStore('cart', {
     getters: {
         cartTotal() {
             return this.cart.reduce((total, product) => total + (product.price * product.quantity), 0);
+        },
+        cartQuantity() {
+            return this.cart.reduce((totalQuantity, product) => totalQuantity + product.quantity, 0);
         }
     },
     actions: {
@@ -41,7 +44,7 @@ export const useCartStore = defineStore('cart', {
         },
         async decQuantity(id) {
             this.cart = this.cart.map(cartItem => {
-                if (cartItem.id === id) cartItem.quantity -= 1;
+                if (cartItem.id === id && cartItem.quantity > 1) cartItem.quantity -= 1;
                 return cartItem;
             });
 
@@ -51,6 +54,26 @@ export const useCartStore = defineStore('cart', {
             })
 
             if (res.error) console.log(res.err);
+        },
+        async addToCart(product) {
+            if (this.cart.find(cartItem => cartItem.id === product.id)) this.incQuantity(product.id);
+            else {
+                this.cart.push({
+                    ...product,
+                    quantity: 1
+                });
+
+                const res = await fetch(`${this.baseUrl}`, {
+                    method: "post",
+                    body: JSON.stringify({
+                        ...product,
+                        quantity: 1
+                    })
+                })
+
+                if (res.error) console.log(res.error);
+            }
+
         }
     }
 })
